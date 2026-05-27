@@ -1,0 +1,50 @@
+@import './styles/DashboardTheme.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg-primary: #020617;
+    --bg-secondary: #0f172a;
+    --bg-glass: rgba(15, 23, 42, 0.6);
+    --bg-sidebar: #020617;
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --border-primary: rgba(255, 255, 255, 0.05);
+    --primary-color: #0ed7b2;
+    --primary-glow: rgba(14, 215, 178, 0.3);
+}
+
+.light-theme {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.8);
+    --bg-sidebar: #0f172a;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-primary: rgba(15, 23, 42, 0.08);
+    --primary-color: #0ed7b2;
+    --primary-glow: rgba(14, 215, 178, 0.2);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+@layer components {
+    .capsule-button {
+        @apply border-2 border-white rounded-full px-8 py-4 m-3 bg-transparent text-white text-base cursor-pointer transition-all duration-300 ease-in-out hover:bg-white/10 hover:scale-105;
+    }
+}
+
+.animate-pop-in {
+    @apply animate-[pop-in_0.3s_cubic-bezier(0.4,0,0.2,1)];
+}
+
+@keyframes pop-in {
+    0% { transform: scale(0.75); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
