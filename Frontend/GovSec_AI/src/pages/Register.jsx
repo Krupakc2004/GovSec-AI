@@ -109,159 +109,161 @@ const Register = () => {
 	};
 
 	return (
-		<div className="min-h-screen relative overflow-x-hidden bg-[#020617] text-white selection:bg-[#0ed7b2]/30 selection:text-[#0ed7b2] font-sans">
+		<div className="min-h-screen relative overflow-x-hidden bg-[var(--bg-dark)] text-[var(--text-main)] selection:bg-[var(--primary)] selection:text-white font-sans">
 			{/* Background Effects */}
 			<div className="fixed inset-0 pointer-events-none">
-				<div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0ed7b2]/5 rounded-full blur-[140px]" />
-				<div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#3b82f6]/5 rounded-full blur-[140px]" />
+				<div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary-dim)] rounded-full blur-[100px]" />
+				<div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[var(--secondary-dim)] rounded-full blur-[100px]" />
 			</div>
 
 			<header className="relative z-10 px-8 py-8 flex items-center justify-between max-w-7xl mx-auto">
-				<Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-[#0ed7b2] transition-colors font-black text-[10px] uppercase tracking-[0.2em]">
+				<Link to="/" className="flex items-center gap-2 text-[var(--text-muted)] hover:text-white transition-colors font-semibold text-sm">
 					<ArrowLeft size={16} />
-					Return to Core
+					Back to Home
 				</Link>
 				<div className="flex items-center gap-3">
 					<div className="gov-logo">G</div>
-					<span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">GovSecAI</span>
+					<span className="text-xl font-bold tracking-tight text-[var(--text-main)]">GovSecAI</span>
 				</div>
 			</header>
 
 			<main className="relative z-10 flex flex-col items-center justify-center px-6 py-12">
 				<div className="w-full max-w-[640px] gov-card p-12 animate-pop-in relative overflow-hidden group">
-					<div className="absolute top-0 right-0 w-32 h-32 bg-[#0ed7b2]/5 rounded-bl-[100px] -z-1 group-hover:bg-[#0ed7b2]/10 transition-all duration-700" />
+					<div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary-dim)] rounded-bl-[100px] -z-1 group-hover:scale-110 transition-transform duration-700" />
 					
 					<div className="text-center mb-12">
-						<h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Initialize Identity</h1>
-						<p className="text-[10px] font-black tracking-widest text-[#0ed7b2] uppercase opacity-80">Portal Registration Sub-Module V4.2</p>
+						<h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-main)]">Create Account</h1>
+						<p className="text-sm font-semibold text-[var(--primary)]">Portal Registration Sub-Module V4.2</p>
 					</div>
 
-					<form className="space-y-8">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+					<form className="space-y-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">First Name</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">First Name</label>
 								<div className="relative">
-									<User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+									<User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 									<input
 										name="firstName"
 										value={formData.firstName}
 										onChange={handleInputChange}
-										className={`w-full bg-white/5 border ${errors.firstName ? "border-red-500" : "border-white/10"} rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+										className={`w-full bg-white/5 border ${errors.firstName ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 										placeholder="First Name"
 									/>
 								</div>
-								{errors.firstName && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.firstName}</p>}
+								{errors.firstName && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.firstName}</p>}
 							</div>
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Last Name</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Last Name</label>
 								<div className="relative">
-									<User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+									<User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 									<input
 										name="lastName"
 										value={formData.lastName}
 										onChange={handleInputChange}
-										className={`w-full bg-white/5 border ${errors.lastName ? "border-red-500" : "border-white/10"} rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+										className={`w-full bg-white/5 border ${errors.lastName ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 										placeholder="Last Name"
 									/>
 								</div>
-								{errors.lastName && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.lastName}</p>}
+								{errors.lastName && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.lastName}</p>}
 							</div>
 						</div>
 
 						<div className="space-y-2">
-							<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Email</label>
+							<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Email Address</label>
 							<div className="relative">
-								<Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+								<Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 								<input
 									name="email"
 									value={formData.email}
 									onChange={handleInputChange}
-									className={`w-full bg-white/5 border ${errors.email ? "border-red-500" : "border-white/10"} rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+									className={`w-full bg-white/5 border ${errors.email ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 									placeholder="email@example.com"
 								/>
 							</div>
-							{errors.email && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.email}</p>}
+							{errors.email && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.email}</p>}
 						</div>
 
 						<div className="space-y-2">
-							<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Phone Number</label>
+							<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Phone Number</label>
 							<div className="relative">
-								<Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+								<Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 								<input
 									name="phone"
 									value={formData.phone}
 									onChange={handleInputChange}
-									className={`w-full bg-white/5 border ${errors.phone ? "border-red-500" : "border-white/10"} rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+									className={`w-full bg-white/5 border ${errors.phone ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 									placeholder="10-digit number"
 								/>
 							</div>
-							{errors.phone && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.phone}</p>}
+							{errors.phone && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.phone}</p>}
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Password</label>
 								<div className="relative">
 									<input
 										type={showPassword ? "text" : "password"}
 										name="password"
 										value={formData.password}
 										onChange={handleInputChange}
-										className={`w-full bg-white/5 border ${errors.password ? "border-red-500" : "border-white/10"} rounded-2xl py-4 px-4 pr-12 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+										className={`w-full bg-white/5 border ${errors.password ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 px-4 pr-12 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 										placeholder="Min 8 characters"
 									/>
-									<button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+									<button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
 										{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 									</button>
 								</div>
-								{errors.password && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.password}</p>}
+								{errors.password && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.password}</p>}
 							</div>
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Confirm Identity</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Confirm Password</label>
 								<div className="relative">
 									<input
 										type={showConfirmPassword ? "text" : "password"}
 										name="confirmPassword"
 										value={formData.confirmPassword}
 										onChange={handleInputChange}
-										className={`w-full bg-white/5 border ${errors.confirmPassword ? "border-red-500" : "border-white/10"} rounded-2xl py-4 px-4 pr-12 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all`}
+										className={`w-full bg-white/5 border ${errors.confirmPassword ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 px-4 pr-12 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 										placeholder="Match password"
 									/>
-									<button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+									<button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
 										{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 									</button>
 								</div>
-								{errors.confirmPassword && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-1 ml-1">{errors.confirmPassword}</p>}
+								{errors.confirmPassword && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.confirmPassword}</p>}
 							</div>
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">City Node</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">City</label>
 								<div className="relative">
-									<MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+									<MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 									<input
 										name="city"
 										value={formData.city}
 										onChange={handleInputChange}
-										className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all"
+										className={`w-full bg-white/5 border ${errors.city ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 										placeholder="Your City"
 									/>
 								</div>
+								{errors.city && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.city}</p>}
 							</div>
 							<div className="space-y-2">
-								<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">State Registry</label>
+								<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">State</label>
 								<select
 									name="state"
 									value={formData.state}
 									onChange={handleInputChange}
-									className="w-full bg-[#020617] border border-white/10 rounded-2xl py-4 px-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all"
+									className={`w-full bg-[var(--bg-dark)] border ${errors.state ? "border-red-500" : "border-white/10"} rounded-xl py-3.5 px-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all`}
 								>
 									<option value="">Select State</option>
 									{states.map((s) => (
 										<option key={s} value={s}>{s}</option>
 									))}
 								</select>
+								{errors.state && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.state}</p>}
 							</div>
 						</div>
 
@@ -272,25 +274,28 @@ const Register = () => {
 								name="agreeTerms"
 								checked={formData.agreeTerms}
 								onChange={handleInputChange}
-								className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[#0ed7b2] focus:ring-[#0ed7b2]/30"
+								className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[var(--primary)] focus:ring-[var(--primary)]/30 cursor-pointer"
 							/>
-							<label htmlFor="agreeTerms" className="text-[10px] text-slate-500 leading-relaxed font-black uppercase tracking-tight">
-								I authorize the collection of biometric metadata and agree to the <span className="text-[#0ed7b2] cursor-pointer hover:underline">Secure Ledger Protocols</span>.
-							</label>
+							<div className="flex flex-col">
+								<label htmlFor="agreeTerms" className="text-sm text-[var(--text-muted)] font-medium cursor-pointer">
+									I agree to the <span className="text-[var(--primary)] hover:underline">Terms of Service</span> and <span className="text-[var(--primary)] hover:underline">Privacy Policy</span>.
+								</label>
+								{errors.agreeTerms && <p className="text-red-500 text-xs font-medium mt-1">{errors.agreeTerms}</p>}
+							</div>
 						</div>
 
 						<button
 							type="button"
 							onClick={handleSubmit}
-							className="w-full bg-[#0ed7b2] text-[#020617] font-black py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(14,215,178,0.3)] hover:scale-[1.02] active:scale-95 text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
+							className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl transition-all shadow-sm hover:bg-blue-600 active:scale-95 text-sm flex items-center justify-center gap-3 group"
 						>
 							<Shield size={20} />
-							Initialize Secure Account
+							Create Account
 						</button>
 
-						<p className="text-center text-slate-500 text-[10px] font-black uppercase tracking-widest mt-8">
-							Identity already exists?{" "}
-							<Link to="/signin" className="text-[#0ed7b2] hover:underline">Access Terminal</Link>
+						<p className="text-center text-[var(--text-muted)] text-sm font-medium mt-8">
+							Already have an account?{" "}
+							<Link to="/signin" className="text-[var(--primary)] font-semibold hover:underline">Sign In</Link>
 						</p>
 					</form>
 				</div>

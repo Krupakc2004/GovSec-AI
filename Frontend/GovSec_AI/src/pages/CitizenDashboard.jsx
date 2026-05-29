@@ -9,6 +9,7 @@ import {
     FileWarning,
     LayoutDashboard,
     LogOut,
+    Menu,
     Plus,
     Search,
     Settings,
@@ -23,15 +24,6 @@ import { toast } from "react-toastify";
 import ChatWidget from "../components/ChatWidget";
 import SchemesPanel from "../components/SchemesPanel";
 import AIAdvisorPanel from "../components/AIAdvisorPanel";
-import {
-    Bar,
-    BarChart,
-    Line,
-    LineChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis
-} from "recharts";
 
 import { API_BASE } from "../config";
 
@@ -45,6 +37,7 @@ const CitizenDashboard = () => {
     const [complaints, setComplaints] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [mobSidebarOpen, setMobSidebarOpen] = useState(false);
     const [showComplaintModal, setShowComplaintModal] = useState(false);
     const [complaintType, setComplaintType] = useState("road"); // road, health, banking
     const [locations, setLocations] = useState({});
@@ -57,6 +50,7 @@ const CitizenDashboard = () => {
         area: "",
         priority: "Medium"
     });
+    const [evidenceFile, setEvidenceFile] = useState(null);
 
     // Effect: Load User Data
     useEffect(() => {
@@ -92,17 +86,31 @@ const CitizenDashboard = () => {
     const handleSubmitComplaint = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${API_BASE}/dashboard/complaint`, {
-                module: complaintType, // backend expects 'module'
-                citizen_email: userData?.email, // backend expects 'citizen_email'
-                ...newComplaint
+            const formData = new FormData();
+            formData.append("module", complaintType);
+            formData.append("citizen_email", userData?.email);
+            formData.append("title", newComplaint.title);
+            formData.append("description", newComplaint.description);
+            formData.append("city", newComplaint.city);
+            formData.append("area", newComplaint.area);
+            formData.append("priority", newComplaint.priority);
+            if (evidenceFile) {
+                formData.append("evidence", evidenceFile);
+            }
+
+            await axios.post(`${API_BASE}/dashboard/complaint`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
             });
             toast.success("Complaint filed successfully!");
             setShowComplaintModal(false);
+            setEvidenceFile(null);
             setNewComplaint({ title: "", description: "", city: "", area: "", priority: "Medium" });
             fetchComplaints(userData.email);
         } catch (error) {
-            toast.error("Error filing complaint");
+            const msg = error.response?.data?.message || "Error filing complaint";
+            toast.error(msg);
         }
     };
 
@@ -127,27 +135,35 @@ const CitizenDashboard = () => {
     // Components
     const SidebarItem = ({ id, icon: Icon, label }) => (
         <button
-            onClick={() => setActiveTab(id)}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+            onClick={() => { setActiveTab(id); setMobSidebarOpen(false); }}
+            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group ${
                 activeTab === id 
-                ? "bg-[#0ed7b2] text-[#020617] shadow-[0_0_20px_rgba(14,215,178,0.3)] font-black" 
-                : "text-slate-400 hover:bg-white/5 hover:text-white font-bold"
+                ? "bg-[var(--primary)] text-white shadow-sm font-semibold" 
+                : "text-slate-400 hover:bg-white/5 hover:text-white font-medium"
             }`}
         >
             <Icon size={20} className={activeTab === id ? "" : "group-hover:scale-110 transition-transform"} />
-            {isSidebarOpen && <span className="text-sm tracking-tight">{label}</span>}
+            {(isSidebarOpen || mobSidebarOpen) && <span className="text-sm tracking-tight">{label}</span>}
         </button>
     );
 
-    if (!userData) return <div className="min-h-screen bg-[#020617] flex items-center justify-center text-[#0ed7b2] font-black tracking-widest">INITIALIZING SECURE SESSION...</div>;
+    if (!userData) return <div className="min-h-screen bg-[var(--bg-dark)] flex items-center justify-center text-[var(--primary)] font-semibold">Initializing Secure Session...</div>;
 
 	return (
 		<div className={`min-h-screen flex overflow-hidden transition-colors duration-300 ${theme === "light" ? "light-theme" : ""} bg-[var(--bg-primary)] text-[var(--text-primary)]`}>
+            {/* Mobile overlay */}
+            {mobSidebarOpen && (
+                <div
+                    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)", zIndex: 199 }}
+                    onClick={() => setMobSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className={`${isSidebarOpen ? "w-[280px]" : "w-[90px]"} bg-[var(--bg-sidebar)] border-r border-white/5 flex flex-col p-6 transition-all duration-500 relative z-30 shadow-2xl`}>
+            <aside className={`cit-sidebar ${mobSidebarOpen ? "mob-open" : ""} ${isSidebarOpen || mobSidebarOpen ? "w-[280px]" : "w-[90px]"} bg-[var(--bg-sidebar)] border-r border-white/5 flex flex-col p-6 transition-all duration-500 relative z-[200] shadow-2xl`}>
                 <div className="flex items-center gap-4 mb-12 px-2">
                     <div className="gov-logo scale-110">G</div>
-                    {isSidebarOpen && <span className="text-xl font-extrabold tracking-tighter uppercase tracking-widest text-[var(--text-primary)]">Citizen Node</span>}
+                    {(isSidebarOpen || mobSidebarOpen) && <span className="text-xl font-bold tracking-tight text-[var(--text-main)]">Citizen Node</span>}
                 </div>
 
                 <div className="space-y-2 flex-1">
@@ -160,113 +176,209 @@ const CitizenDashboard = () => {
                         className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[var(--text-secondary)] hover:bg-white/5 hover:text-[var(--text-primary)] font-bold group transition-all duration-300"
                     >
                         <User size={20} className="group-hover:scale-110 transition-transform" />
-                        {isSidebarOpen && <span className="text-sm tracking-tight">My Profile</span>}
+                        {(isSidebarOpen || mobSidebarOpen) && <span className="text-sm tracking-tight font-medium">My Profile</span>}
                     </button>
                 </div>
 
                 <div className="pt-6 border-t border-white/5 space-y-2">
                     <SidebarItem id="settings" icon={Settings} label="Setting" />
-                    <button onClick={logout} className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[#ef4444] hover:bg-red-500/5 transition-all font-bold group">
+                    <button onClick={logout} className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-[#ef4444] hover:bg-red-500/10 transition-all font-medium group">
                         <LogOut size={20} className="group-hover:scale-110 transition-transform" />
-                        {isSidebarOpen && <span className="text-sm uppercase tracking-widest font-black">Terminate</span>}
+                        {(isSidebarOpen || mobSidebarOpen) && <span className="text-sm tracking-tight">Sign Out</span>}
                     </button>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto relative bg-[var(--bg-primary)]">
+            <main className="cit-main flex-1 overflow-y-auto relative bg-[var(--bg-primary)]">
                 {/* Background effects */}
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--primary-color)]/5 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--primary-dim)] rounded-full blur-[100px] pointer-events-none" />
                 
                 {/* Header */}
-                <header className="sticky top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-xl border-b border-white/5 px-8 h-24 flex items-center justify-between">
+                <header className="sticky top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-xl border-b border-white/5 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
                     <div>
-                        <h2 className="gov-h2 text-2xl mb-1 uppercase tracking-widest font-black" style={{backgroundImage: 'none', WebkitBackgroundClip: 'initial', WebkitTextFillColor: 'var(--text-primary)'}}>
+                        <h2 className="text-2xl font-bold tracking-tight text-[var(--text-main)] mb-1">
                             {activeTab === "overview" ? "Strategic Intelligence" : activeTab === "complaints" ? "Citizen Complaints" : activeTab === "schemes" ? "Government Schemes" : activeTab === "ai-advisor" ? "AI Policy Advisor" : "Strategic Configuration"}
                         </h2>
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-[var(--primary-color)] animate-pulse" />
-                            <span className="text-[10px] font-black tracking-widest text-[var(--text-secondary)] uppercase">Secure Link Established: {userData.email}</span>
+                            <div className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+                            <span className="text-xs font-medium text-[var(--text-muted)]">Secure Link: {userData.email}</span>
                         </div>
                     </div>
 
-
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        {/* Hamburger for mobile */}
+                        <button
+                            className="cit-hamburger"
+                            onClick={() => setMobSidebarOpen(p => !p)}
+                            aria-label="Toggle menu"
+                        >
+                            {mobSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+                        </button>
                         <button 
                             onClick={() => setShowComplaintModal(true)} 
-                            className="bg-[#0ed7b2] hover:bg-[#059669] text-[#020617] px-6 py-3 rounded-xl font-black text-sm transition-all shadow-[0_0_20px_rgba(14,215,178,0.2)] flex items-center gap-2 active:scale-95 animate-glow"
+                            className="bg-[var(--primary)] hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95"
                         >
-                            <Plus size={18} />
-                            NEW REPORT
+                            <Plus size={16} />
+                            <span className="hidden sm:inline">New Report</span>
+                            <span className="sm:hidden">+</span>
                         </button>
                     </div>
                 </header>
 
-                <div className="p-8 space-y-8 animate-pop-in">
+                <div className="p-4 sm:p-8 space-y-6 sm:space-y-8 animate-pop-in">
                     {activeTab === "overview" && (
                         <>
                             {/* Summary Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div className="gov-card flex flex-col group hover:border-[#0ed7b2]/30 transition-all cursor-default relative overflow-hidden">
-                                     <div className="absolute top-0 right-0 w-16 h-16 bg-[#0ed7b2]/5 rounded-bl-full group-hover:bg-[#0ed7b2]/10 transition-all" />
-                                    <span className="text-[10px] font-black tracking-widest text-[#0ed7b2] mb-1 uppercase">Total Reports</span>
-                                    <div className="text-4xl font-black text-white">{complaints.length}</div>
-                                    <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden text-[10px] font-bold text-slate-500 py-4 flex items-center">
-                                       GLOBAL_INDEX_4.2
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+                                <div className="gov-card flex flex-col group hover:border-slate-600 transition-all cursor-default relative overflow-hidden">
+                                     <div className="absolute top-0 right-0 w-16 h-16 bg-[var(--primary-dim)] rounded-bl-full group-hover:scale-110 transition-transform duration-500" />
+                                    <span className="text-xs font-semibold text-[var(--text-muted)] mb-1">Total Reports</span>
+                                    <div className="text-4xl font-bold text-[var(--text-main)]">{complaints.length}</div>
+                                    <div className="mt-4 h-1 bg-white/5 rounded-full overflow-hidden flex items-center">
+                                       <div className="h-full bg-[var(--primary)] w-[42%]"></div>
                                     </div>
                                 </div>
-                                <div className="gov-card flex flex-col group hover:border-[#3b82f6]/30 transition-all cursor-default relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-[#3b82f6]/5 rounded-bl-full group-hover:bg-[#3b82f6]/10 transition-all" />
-                                    <span className="text-[10px] font-black tracking-widest text-[#3b82f6] mb-1 uppercase">In Progress</span>
-                                    <div className="text-4xl font-black text-white">{complaints.filter(c => c.status === "Pending" || c.status === "In Progress").length}</div>
-                                    <div className="mt-4 text-[10px] font-black tracking-widest text-[#3b82f6]/50 uppercase">Active Monitoring</div>
+                                <div className="gov-card flex flex-col group hover:border-slate-600 transition-all cursor-default relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/5 rounded-bl-full group-hover:scale-110 transition-transform duration-500" />
+                                    <span className="text-xs font-semibold text-[var(--text-muted)] mb-1">In Progress</span>
+                                    <div className="text-4xl font-bold text-[var(--text-main)]">{complaints.filter(c => c.status === "Pending" || c.status === "In Progress").length}</div>
+                                    <div className="mt-4 text-[10px] font-semibold text-blue-500">Active Monitoring</div>
                                 </div>
-                                <div className="gov-card flex flex-col group hover:border-emerald-500/30 transition-all cursor-default relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full group-hover:bg-emerald-500/10 transition-all" />
-                                    <span className="text-[10px] font-black tracking-widest text-emerald-500 mb-1 uppercase">Resolved</span>
-                                    <div className="text-4xl font-black text-white">{complaints.filter(c => c.status === "Resolved" || c.status === "Completed").length}</div>
-                                    <div className="mt-4 text-[10px] font-black tracking-widest text-emerald-500/50 uppercase">Compliance Reached</div>
+                                <div className="gov-card flex flex-col group hover:border-slate-600 transition-all cursor-default relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full group-hover:scale-110 transition-transform duration-500" />
+                                    <span className="text-xs font-semibold text-[var(--text-muted)] mb-1">Resolved</span>
+                                    <div className="text-4xl font-bold text-[var(--text-main)]">{complaints.filter(c => c.status === "Resolved" || c.status === "Completed").length}</div>
+                                    <div className="mt-4 text-[10px] font-semibold text-emerald-500">Compliance Reached</div>
                                 </div>
-                                <div className="gov-card flex flex-col group hover:border-blue-400/30 transition-all cursor-default relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-blue-400/5 rounded-bl-full group-hover:bg-blue-400/10 transition-all" />
-                                    <span className="text-[10px] font-black tracking-widest text-blue-400 mb-1 uppercase">System Trust</span>
-                                    <div className="text-4xl font-black text-white">98%</div>
-                                    <div className="mt-4 text-[10px] font-black tracking-widest text-blue-400/50 uppercase">Verified Nodes</div>
+                                <div className="gov-card flex flex-col items-start justify-center group hover:border-slate-600 transition-all relative overflow-hidden bg-[var(--primary-dim)]">
+                                    <span className="text-sm font-semibold text-[var(--primary)] mb-2">Need Assistance?</span>
+                                    <button 
+                                        onClick={() => setShowComplaintModal(true)} 
+                                        className="bg-[var(--primary)] hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm flex items-center gap-2 active:scale-95 z-10"
+                                    >
+                                        <Plus size={16} />
+                                        File New Report
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Main Content Area */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <div className="gov-card p-0 overflow-hidden h-[400px]">
-                                    <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02]">
-                                        <h3 className="text-sm font-black tracking-widest text-slate-400 uppercase">Strategic Sentiment Index</h3>
+                            {/* Main Content Area: Schemes & AI */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                                {/* Left Col: Featured Schemes */}
+                                <div className="gov-card p-0 overflow-hidden flex flex-col">
+                                    <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                                        <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                                            <BookOpen size={16} className="text-[var(--primary)]" />
+                                            Featured Schemes
+                                        </h3>
+                                        <button onClick={() => setActiveTab("schemes")} className="text-xs font-medium text-[var(--primary)] hover:underline">
+                                            View All
+                                        </button>
                                     </div>
-                                    <div className="p-8 h-full pb-20">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart data={[
-                                                { month: "Jan", val: 400 }, { month: "Feb", val: 300 }, { month: "Mar", val: 600 },
-                                                { month: "Apr", val: 800 }, { month: "May", val: 500 }, { month: "Jun", val: 900 }
-                                            ]}>
-                                                <XAxis dataKey="month" stroke="#475569" strokeWidth={0} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} />
-                                                <Tooltip contentStyle={{backgroundColor: '#020617', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px'}} />
-                                                <Line type="monotone" dataKey="val" stroke="#0ed7b2" strokeWidth={4} dot={{r: 4, fill: '#0ed7b2', strokeWidth: 0}} />
-                                            </LineChart>
-                                        </ResponsiveContainer>
+                                    <div className="p-6 flex-1 space-y-4">
+                                        {/* Scheme 1 */}
+                                        <div className="p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors cursor-pointer" onClick={() => setActiveTab("schemes")}>
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 mt-1"><Stethoscope size={16} /></div>
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-[var(--text-main)] mb-1">Ayushman Bharat Yojana</h4>
+                                                    <p className="text-xs text-[var(--text-muted)] font-medium">Free health coverage up to ₹5 Lakhs per family per year.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* Scheme 2 */}
+                                        <div className="p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors cursor-pointer" onClick={() => setActiveTab("schemes")}>
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500 mt-1"><Activity size={16} /></div>
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-[var(--text-main)] mb-1">PM Kisan Samman Nidhi</h4>
+                                                    <p className="text-xs text-[var(--text-muted)] font-medium">Income support of ₹6,000 per year for landholding farmers.</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="gov-card p-0 overflow-hidden h-[400px]">
-                                    <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02]">
-                                        <h3 className="text-sm font-black tracking-widest text-slate-400 uppercase">Engagement Vectors</h3>
+
+                                {/* Right Col: AI & Recent Activity */}
+                                <div className="flex flex-col gap-6 sm:gap-8">
+                                    {/* AI Quick Access */}
+                                    <div className="gov-card p-6 bg-gradient-to-br from-[var(--primary-dim)] to-transparent border border-[var(--primary)]/20 relative overflow-hidden">
+                                        <div className="absolute right-[-20px] top-[-20px] opacity-10">
+                                            <Bot size={120} />
+                                        </div>
+                                        <h3 className="text-sm font-semibold text-[var(--text-main)] mb-2 flex items-center gap-2">
+                                            <Bot size={16} className="text-[var(--primary)]" />
+                                            Ask AI Advisor
+                                        </h3>
+                                        <p className="text-xs text-[var(--text-muted)] font-medium mb-4 max-w-[80%]">Have questions about eligibility or how to apply? Ask our AI assistant immediately.</p>
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                placeholder="e.g., Am I eligible for Ayushman Bharat?" 
+                                                className="flex-1 bg-[var(--bg-dark)] border border-white/10 rounded-lg px-4 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--primary)]"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && e.target.value.trim()) {
+                                                        setAiInitialMsg(e.target.value);
+                                                        setActiveTab("ai-advisor");
+                                                    }
+                                                }}
+                                            />
+                                            <button 
+                                                onClick={(e) => {
+                                                    const input = e.currentTarget.previousElementSibling;
+                                                    if (input.value.trim()) {
+                                                        setAiInitialMsg(input.value);
+                                                        setActiveTab("ai-advisor");
+                                                    }
+                                                }}
+                                                className="bg-[var(--primary)] hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                                            >
+                                                <Search size={16} />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="p-8 h-full pb-20">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={[
-                                                { name: "HEALTH", val: 80 }, { name: "ROAD", val: 65 }, { name: "FINANCE", val: 45 }, { name: "SEC", val: 90 }
-                                            ]}>
-                                                <XAxis dataKey="name" strokeWidth={0} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} />
-                                                <Bar dataKey="val" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-                                            </BarChart>
-                                        </ResponsiveContainer>
+
+                                    {/* Recent Activity */}
+                                    <div className="gov-card p-0 flex-1 flex flex-col">
+                                        <div className="px-6 py-5 border-b border-white/5 bg-white/[0.02]">
+                                            <h3 className="text-sm font-semibold text-[var(--text-main)]">Recent Activity</h3>
+                                        </div>
+                                        <div className="p-6 flex-1 flex flex-col">
+                                            {complaints.length === 0 ? (
+                                                <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
+                                                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                                        <FileWarning size={20} className="text-[var(--text-muted)]" />
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-[var(--text-main)] mb-1">No reports filed yet</p>
+                                                    <p className="text-xs text-[var(--text-muted)] font-medium">Your filed reports and their status will appear here.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {complaints.slice(0, 3).map((c, i) => (
+                                                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 rounded-lg bg-white/5 text-[var(--primary)]">
+                                                                    {c.type === "road" ? <Construction size={14} /> : c.type === "health" ? <Stethoscope size={14} /> : <CreditCard size={14} />}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs font-semibold text-[var(--text-main)]">{c.title}</div>
+                                                                    <div className="text-[10px] text-[var(--text-muted)] font-medium">{c.location}</div>
+                                                                </div>
+                                                            </div>
+                                                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${getStatusStyle(c.status)}`}>
+                                                                {c.status || "Pending"}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    {complaints.length > 3 && (
+                                                        <button onClick={() => setActiveTab("complaints")} className="w-full text-center text-xs font-semibold text-[var(--primary)] hover:underline mt-2">
+                                                            View all {complaints.length} reports
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -514,18 +626,22 @@ const CitizenDashboard = () => {
                                         </select>
                                     </div>
                                 </div>
+                                <div>
+                                    <label className="block mb-2 ml-1">Evidence Photo (Optional - OpenCV CV Verified)</label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        onChange={(e) => setEvidenceFile(e.target.files[0])}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-colors"
+                                    />
+                                    {evidenceFile && <div className="text-[9px] text-[#0ed7b2] mt-2 font-black uppercase tracking-widest">Selected file: {evidenceFile.name}</div>}
+                                </div>
                                 <div className="grid grid-cols-1">
                                     <div>
-                                        <label className="block mb-2 ml-1">Priority Vector</label>
-                                        <select 
-                                            className="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-colors"
-                                            value={newComplaint.priority}
-                                            onChange={(e) => setNewComplaint({...newComplaint, priority: e.target.value})}
-                                        >
-                                            <option value="Low">Low Priority</option>
-                                            <option value="Medium">Standard Alert</option>
-                                            <option value="High">Priority Breach</option>
-                                        </select>
+                                        <label className="block mb-2 ml-1">Priority Vector (AI Automated Triage)</label>
+                                        <div className="w-full bg-white/5 border border-[#0ed7b2]/20 rounded-2xl p-4 text-[10px] font-black tracking-widest text-[#0ed7b2] uppercase">
+                                            🤖 Auto-Priority Active (Analyzed via TextBlob Sentiment Polarity)
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -129,14 +129,14 @@ const Notifications = () => {
 						</div>
 					</div>
 
-					<Link
-						to="/citizendashboard"
+					<button
+						onClick={() => window.history.back()}
 						className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 						aria-label="Back to dashboard"
 						title="Back to dashboard"
 					>
 						<X className="w-6 h-6" />
-					</Link>
+					</button>
 				</div>
 
 				{/* Action Buttons */}

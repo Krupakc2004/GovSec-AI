@@ -88,114 +88,114 @@ const SignIn = () => {
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[#020617] text-white selection:bg-[#0ed7b2]/30 selection:text-[#0ed7b2] font-sans">
+		<div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[var(--bg-dark)] text-[var(--text-main)] selection:bg-[var(--primary)] selection:text-white font-sans">
 			{/* Background Effects */}
 			<div className="fixed inset-0 pointer-events-none">
-				<div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0ed7b2]/5 rounded-full blur-[140px]" />
-				<div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#3b82f6]/5 rounded-full blur-[140px]" />
+				<div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary-dim)] rounded-full blur-[100px]" />
+				<div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[var(--secondary-dim)] rounded-full blur-[100px]" />
 			</div>
 
 			<div className="w-full max-w-[480px] gov-card p-10 animate-pop-in relative z-10 flex flex-col group overflow-hidden">
-				<div className="absolute top-0 right-0 w-32 h-32 bg-[#0ed7b2]/5 rounded-bl-[100px] -z-1 group-hover:bg-[#0ed7b2]/10 transition-all duration-700" />
+				<div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary-dim)] rounded-bl-[100px] -z-1 group-hover:scale-110 transition-transform duration-700" />
 				
 				<div className="text-center mb-10">
 					<div className="flex justify-center mb-6">
-						<div className="gov-logo scale-125 shadow-[0_0_30px_rgba(14,215,178,0.3)]">G</div>
+						<div className="gov-logo scale-125">G</div>
 					</div>
-					<h1 className="text-3xl font-black tracking-tighter uppercase mb-2">Access Portal</h1>
-					<p className="text-[10px] font-black tracking-widest text-[#0ed7b2] uppercase opacity-80">Secure Identification Hub V4.2</p>
+					<h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--text-main)]">Access Portal</h1>
+					<p className="text-sm font-semibold text-[var(--primary)]">Secure Identification Hub V4.2</p>
 				</div>
 
 				{/* User Type Selector */}
-				<div className="flex p-1 bg-white/5 rounded-2xl mb-10 border border-white/5">
+				<div className="flex p-1 bg-white/5 rounded-xl mb-10 border border-white/5">
 					<button
 						onClick={() => setUserType("citizen")}
-						className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${
-							userType === "citizen" ? "bg-[#0ed7b2] text-[#020617] font-black shadow-lg" : "text-slate-500 font-bold hover:text-white"
+						className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all duration-300 ${
+							userType === "citizen" ? "bg-[var(--primary)] text-white font-semibold shadow-sm" : "text-[var(--text-muted)] font-medium hover:text-white"
 						}`}
 					>
 						<User size={16} />
-						<span className="text-[10px] uppercase tracking-widest">Citizen</span>
+						<span className="text-sm">Citizen</span>
 					</button>
 					<button
 						onClick={() => setUserType("admin")}
-						className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${
-							userType === "admin" ? "bg-[#3b82f6] text-white font-black shadow-lg" : "text-slate-500 font-bold hover:text-white"
+						className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all duration-300 ${
+							userType === "admin" ? "bg-[var(--primary)] text-white font-semibold shadow-sm" : "text-[var(--text-muted)] font-medium hover:text-white"
 						}`}
 					>
 						<Building size={16} />
-						<span className="text-[10px] uppercase tracking-widest">Official</span>
+						<span className="text-sm">Official</span>
 					</button>
 				</div>
 
-				<div className="space-y-8">
+				<div className="space-y-6">
 					<div className="space-y-2">
-						<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Identity Vector (Email)</label>
+						<label className="text-sm font-semibold text-[var(--text-muted)] ml-1">Email Address</label>
 						<div className="relative">
-							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 							<input
 								type="email"
 								name="email"
 								value={formData.email}
 								onChange={handleInputChange}
-								className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all"
+								className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all"
 								placeholder="Enter registered email"
 							/>
 						</div>
-						{errors.email && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-2 ml-1">{errors.email}</p>}
+						{errors.email && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.email}</p>}
 					</div>
 
 					<div className="space-y-2">
 						<div className="flex justify-between mb-1 ml-1">
-							<label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Security Key</label>
-							<Link to="/forgot-password text-[10px] font-black text-[#0ed7b2] uppercase hover:underline">Recovery</Link>
+							<label className="text-sm font-semibold text-[var(--text-muted)]">Password</label>
+							<Link to="/forgot-password" className="text-sm font-semibold text-[var(--primary)] hover:underline">Recovery</Link>
 						</div>
 						<div className="relative">
-							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
 							<input
 								type={showPassword ? "text" : "password"}
 								name="password"
 								value={formData.password}
 								onChange={handleInputChange}
-								className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm font-bold text-white focus:outline-none focus:border-[#0ed7b2] transition-all"
-								placeholder="Enter access code"
+								className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-sm font-medium text-white focus:outline-none focus:border-[var(--primary)] transition-all"
+								placeholder="Enter password"
 							/>
-							<button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+							<button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
 								{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 							</button>
 						</div>
-						{errors.password && <p className="text-[#ef4444] text-[10px] font-black uppercase mt-2 ml-1">{errors.password}</p>}
+						{errors.password && <p className="text-red-500 text-xs font-medium mt-1 ml-1">{errors.password}</p>}
 					</div>
 
 					<button
 						onClick={handleSubmit}
 						disabled={isLoading}
-						className="w-full bg-[#0ed7b2] text-[#020617] font-black py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(14,215,178,0.3)] hover:scale-[1.02] active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em]"
+						className="w-full bg-[var(--primary)] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm hover:bg-blue-600 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-sm"
 					>
 						{isLoading ? (
-							<div className="w-5 h-5 border-2 border-[#020617]/30 border-t-[#020617] rounded-full animate-spin" />
+							<div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
 						) : (
 							<>
 								<Shield size={18} />
-								Establish Link
+								Sign In
 							</>
 						)}
 					</button>
 
-					<p className="text-center text-slate-500 text-[10px] font-black uppercase tracking-widest mt-8">
-						New Node Initialization?{" "}
-						<Link to="/register" className="text-[#0ed7b2] hover:underline">Registration</Link>
+					<p className="text-center text-[var(--text-muted)] text-sm font-medium mt-8">
+						Don't have an account?{" "}
+						<Link to="/register" className="text-[var(--primary)] font-semibold hover:underline">Register here</Link>
 					</p>
 				</div>
 
-				<div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">
-					<Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest">
+				<div className="mt-12 pt-6 border-t border-white/5 flex items-center justify-between">
+					<Link to="/" className="flex items-center gap-2 text-[var(--text-muted)] hover:text-white transition-colors text-xs font-semibold">
 						<ArrowLeft size={16} />
-						Exit Terminal
+						Back to Home
 					</Link>
 					<div className="flex items-center gap-2">
-						<div className="w-1.5 h-1.5 rounded-full bg-[#0ed7b2] animate-pulse" />
-						<span className="text-[8px] text-slate-500 uppercase font-black tracking-widest">Encrypted Session</span>
+						<div className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
+						<span className="text-xs text-[var(--text-muted)] font-medium">Encrypted Session</span>
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,9 @@
+const fs = require("fs");
 const response = require("../utils/responseHandler.util.js");
 const RoadComplaint = require("../models/roadComplaint.model.js");
 const HealthComplaint = require("../models/healthComplaint.model.js");
 const BankingFraud = require("../models/bankingFraud.model.js");
+const { runAiEngine } = require("../utils/ai_bridge.js");
 
 class DashboardController {
 	// --- STATS ---
@@ -430,42 +432,83 @@ class DashboardController {
 
 	static async fileComplaint(req, res) {
 		try {
-			const { module, city, area, description, citizen_email, evidence_url } = req.body;
+			const { module, city, area, description, citizen_email } = req.body;
 			if (!module || !city || !area || !description || !citizen_email) {
+				// Cleanup uploaded file if missing required text inputs
+				if (req.file && fs.existsSync(req.file.path)) {
+					fs.unlinkSync(req.file.path);
+				}
 				return response(res, 400, null, "Missing required fields");
 			}
 
 			const date = new Date().toLocaleDateString("en-GB").replace(/\//g, "-"); // DD-MM-YYYY
 			const id = "C-" + Math.floor(Math.random() * 1000000);
 
+			let priority = "Medium";
+			let cvStatus = req.file ? "Verified" : "No image";
+			let evidenceUrl = req.file ? `/static/uploads/${req.file.filename}` : null;
+
+			// --- Cross-Runtime Python AI Bridge Triage ---
+			try {
+				const aiResult = await runAiEngine({
+					mode: req.file ? "all" : "nlp",
+					text: description,
+					imagePath: req.file ? req.file.path : ""
+				});
+
+				if (aiResult.nlp) {
+					priority = aiResult.nlp.priority || "Medium";
+				}
+
+				if (aiResult.cv) {
+					if (!aiResult.cv.verified) {
+						// Reject submission, remove invalid file from uploads directory
+						if (req.file && fs.existsSync(req.file.path)) {
+							fs.unlinkSync(req.file.path);
+						}
+						return response(res, 400, null, aiResult.cv.reason || "Image evidence failed visual validation.");
+					}
+					cvStatus = "Verified";
+				}
+			} catch (aiErr) {
+				console.error("[!] AI Bridge invocation failed, falling back gracefully:", aiErr.message);
+				// In case of execution engine fallback, default values are preserved
+			}
+
 			if (module === "road") {
-                const doc = new RoadComplaint({
-                    complaintId: id, dateReported: date, city, area, description, 
-                    status: "Pending", priority: "Medium", areaStatus: "Pending", 
-                    citizenEmail: citizen_email, evidenceUrl: evidence_url || null
-                });
-                await doc.save();
+				const doc = new RoadComplaint({
+					complaintId: id, dateReported: date, city, area, description, 
+					status: cvStatus, priority, areaStatus: "Pending", 
+					citizenEmail: citizen_email, evidenceUrl
+				});
+				await doc.save();
 			} else if (module === "health") {
 				const doc = new HealthComplaint({
-                    complaintId: id, dateReported: date, city, area, complaintText: description, 
-                    category: "General", severity: "Medium", status: "Pending", areaStatus: "Pending", 
-                    citizenEmail: citizen_email, evidenceUrl: evidence_url || null
-                });
-                await doc.save();
+					complaintId: id, dateReported: date, city, area, complaintText: description, 
+					category: "General", severity: priority, status: cvStatus, areaStatus: "Pending", 
+					citizenEmail: citizen_email, evidenceUrl
+				});
+				await doc.save();
 			} else if (module === "fraud" || module === "banking") {
 				const doc = new BankingFraud({
-                    transactionId: id, timestamp: new Date().toISOString(), locationCity: city, area, 
-                    merchantCategory: description, riskScore: 50, isFraud: "Yes", status: "Pending", 
-                    areaStatus: "Pending", citizenEmail: citizen_email, evidenceUrl: evidence_url || null
-                });
-                await doc.save();
+					transactionId: id, timestamp: new Date().toISOString(), locationCity: city, area, 
+					merchantCategory: description, riskScore: 50, isFraud: "Yes", status: cvStatus, 
+					areaStatus: "Pending", citizenEmail: citizen_email, evidenceUrl
+				});
+				await doc.save();
 			} else {
+				if (req.file && fs.existsSync(req.file.path)) {
+					fs.unlinkSync(req.file.path);
+				}
 				return response(res, 400, null, "Invalid module");
 			}
 
 			return res.json({ status: "success", complaint_id: id });
 		} catch (e) {
 			console.error("Error filing complaint:", e);
+			if (req.file && fs.existsSync(req.file.path)) {
+				fs.unlinkSync(req.file.path);
+			}
 			return response(res, 500, null, "Error filing complaint");
 		}
 	}
