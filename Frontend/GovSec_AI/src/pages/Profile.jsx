@@ -39,7 +39,7 @@ const Profile = () => {
 	});
 
 	useEffect(() => {
-		const sessionData = JSON.parse(sessionStorage.getItem("govsec_user"));
+		const sessionData = JSON.parse(localStorage.getItem("govsec_user"));
 		if (!sessionData) {
             toast.warning("Secure Session Required. Redirecting...");
             navigate("/signin");
@@ -79,7 +79,7 @@ const Profile = () => {
                             updatedSession.firstname = freshUser.firstname;
                             updatedSession.lastname = freshUser.lastname;
                         }
-                        sessionStorage.setItem("govsec_user", JSON.stringify(updatedSession));
+                        localStorage.setItem("govsec_user", JSON.stringify(updatedSession));
                     }
                 } catch (err) {
                     console.error("Failed to fetch fresh profile:", err);
@@ -90,7 +90,7 @@ const Profile = () => {
 	}, []);
 
 	const handleLogout = () => {
-		sessionStorage.clear();
+		localStorage.clear();
 		navigate("/signin");
 	};
 

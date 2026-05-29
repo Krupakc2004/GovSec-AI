@@ -98,7 +98,7 @@ const Register = () => {
 					state: formData.state,
 				});
 
-				sessionStorage.setItem("govsec_otp_email", formData.email);
+				localStorage.setItem("govsec_otp_email", formData.email);
 				toast.success("Registration successful! Please verify your email.");
 				navigate("/otp");
 			} catch (error) {

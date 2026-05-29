@@ -2,8 +2,8 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-	const token = sessionStorage.getItem("govsec_token");
-	const userStr = sessionStorage.getItem("govsec_user");
+	const token = localStorage.getItem("govsec_token");
+	const userStr = localStorage.getItem("govsec_user");
 
 	if (!token || !userStr) {
 		return <Navigate to="/signin" replace />;

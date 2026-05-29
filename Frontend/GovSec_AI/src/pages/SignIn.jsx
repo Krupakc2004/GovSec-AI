@@ -65,8 +65,8 @@ const SignIn = () => {
 				});
 
 				const { token, user } = res.data.data;
-				sessionStorage.setItem("govsec_token", token);
-				sessionStorage.setItem("govsec_user", JSON.stringify(user));
+				localStorage.setItem("govsec_token", token);
+				localStorage.setItem("govsec_user", JSON.stringify(user));
 
 				if (userType === "admin" && user.role === "gov") {
 					toast.success("Welcome, Government Official!");
@@ -75,7 +75,7 @@ const SignIn = () => {
 					toast.success("Welcome back!");
 					navigate("/citizendashboard");
 				} else {
-					sessionStorage.clear();
+					localStorage.clear();
 					toast.error(`Invalid role for selected login type.`);
 				}
 			} catch (error) {

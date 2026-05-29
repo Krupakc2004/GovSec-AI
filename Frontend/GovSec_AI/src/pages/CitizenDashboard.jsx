@@ -54,7 +54,7 @@ const CitizenDashboard = () => {
 
     // Effect: Load User Data
     useEffect(() => {
-        const user = JSON.parse(sessionStorage.getItem("govsec_user"));
+        const user = JSON.parse(localStorage.getItem("govsec_user"));
         if (user) {
             setUserData(user);
             fetchComplaints(user.email);
@@ -120,7 +120,7 @@ const CitizenDashboard = () => {
     };
 
     const logout = () => {
-        sessionStorage.clear();
+        localStorage.clear();
         window.location.href = "/signin";
     };
 

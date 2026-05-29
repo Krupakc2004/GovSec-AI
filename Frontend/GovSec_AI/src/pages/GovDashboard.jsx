@@ -91,7 +91,7 @@ const GovDashboard = () => {
 	const [lightboxImg, setLightboxImg] = useState(null);
 
 	// User info
-	const userStr = sessionStorage.getItem("govsec_user");
+	const userStr = localStorage.getItem("govsec_user");
 	const user = userStr ? JSON.parse(userStr) : {};
 
 	// --- API Check ---
@@ -311,7 +311,7 @@ const GovDashboard = () => {
 
 	// Logout
 	const handleLogout = () => {
-		sessionStorage.clear();
+		localStorage.clear();
 		navigate("/signin");
 	};
 

@@ -101,7 +101,7 @@ const OTP = () => {
 		setError("");
 		setSuccess(false);
 
-		const email = sessionStorage.getItem("govsec_otp_email");
+		const email = localStorage.getItem("govsec_otp_email");
 		if (!email) {
 			setError("Email not found. Please register again.");
 			return;
@@ -114,7 +114,7 @@ const OTP = () => {
 			});
 
 			setSuccess(true);
-			sessionStorage.removeItem("govsec_otp_email");
+			localStorage.removeItem("govsec_otp_email");
 			toast.success("Email verified successfully!");
 
 			setTimeout(() => {

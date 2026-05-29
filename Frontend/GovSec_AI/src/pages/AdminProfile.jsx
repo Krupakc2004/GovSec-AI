@@ -31,7 +31,7 @@ const AdminProfile = () => {
 	});
 
     useEffect(() => {
-        const user = JSON.parse(sessionStorage.getItem("govsec_user"));
+        const user = JSON.parse(localStorage.getItem("govsec_user"));
         if (user) {
             setAdminInfo({
                 ...adminInfo,
@@ -43,7 +43,7 @@ const AdminProfile = () => {
     }, []);
 
 	const handleLogout = () => {
-		sessionStorage.clear();
+		localStorage.clear();
 		navigate("/signin");
 	};
 
